@@ -67,6 +67,36 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
+func updatePost(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+
+	var updatePost Post
+	err = json.NewDecoder(r.Body).Decode(&updatePost)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	for i, post := range postList {
+		if post.ID == id {
+			postList[i].Title = updatePost.Title
+			postList[i].Content = updatePost.Content
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(postList[i])
+			return
+		}
+	}
+
+	http.Error(w, "Post not found", http.StatusNotFound)
+}
+
 func main() {
 	r := chi.NewRouter()
 
@@ -74,6 +104,7 @@ func main() {
 	r.Get("/posts", posts)
 	r.Get("/posts/{id}", post)
 	r.Post("/posts", createPost)
+	r.Put("/posts/{id}", updatePost)
 
 	server := http.Server{
 		Addr:    ":8080",
