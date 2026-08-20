@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -57,6 +58,16 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if strings.TrimSpace(post.Title) == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+
+	if strings.TrimSpace(post.Content) == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
+		return
+	}
+
 	post.ID = nextID
 	nextID++
 
@@ -80,6 +91,16 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&updatedPost)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if strings.TrimSpace(updatedPost.Title) == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+
+	if strings.TrimSpace(updatedPost.Content) == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
 		return
 	}
 
