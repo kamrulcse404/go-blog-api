@@ -76,8 +76,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var updatePost Post
-	err = json.NewDecoder(r.Body).Decode(&updatePost)
+	var updatedPost Post
+	err = json.NewDecoder(r.Body).Decode(&updatedPost)
 	if err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
@@ -85,8 +85,8 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 
 	for i, post := range postList {
 		if post.ID == id {
-			postList[i].Title = updatePost.Title
-			postList[i].Content = updatePost.Content
+			postList[i].Title = updatedPost.Title
+			postList[i].Content = updatedPost.Content
 
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(postList[i])
