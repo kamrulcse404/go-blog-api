@@ -97,6 +97,26 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Post not found", http.StatusNotFound)
 }
 
+func deletePost(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+
+	for i, post := range postList {
+		if post.ID == id {
+			postList = append(postList[:i], postList[i+1:]...)
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}
+
+	http.Error(w, "Post not found", http.StatusNotFound)
+}
+
 func main() {
 	r := chi.NewRouter()
 
@@ -105,6 +125,7 @@ func main() {
 	r.Get("/posts/{id}", post)
 	r.Post("/posts", createPost)
 	r.Put("/posts/{id}", updatePost)
+	r.Delete("/posts/{id}", deletePost)
 
 	server := http.Server{
 		Addr:    ":8080",
