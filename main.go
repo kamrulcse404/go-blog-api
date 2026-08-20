@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func users(w http.ResponseWriter, r *http.Request) {
@@ -15,14 +17,14 @@ func posts(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
 
-	mux.HandleFunc("/users", users)
-	mux.HandleFunc("/posts", posts)
+	r.Get("/users", users)
+	r.Get("/posts", posts)
 
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: r,
 	}
 
 	fmt.Println("Server running on : 8080")
