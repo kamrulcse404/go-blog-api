@@ -58,12 +58,15 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.TrimSpace(post.Title) == "" {
+	post.Title = strings.TrimSpace(post.Title)
+	post.Content = strings.TrimSpace(post.Content)
+
+	if post.Title == "" {
 		http.Error(w, "Title is required", http.StatusBadRequest)
 		return
 	}
 
-	if strings.TrimSpace(post.Content) == "" {
+	if post.Content == "" {
 		http.Error(w, "Content is required", http.StatusBadRequest)
 		return
 	}
@@ -94,12 +97,15 @@ func updatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.TrimSpace(updatedPost.Title) == "" {
+	updatedPost.Title = strings.TrimSpace(updatedPost.Title)
+	updatedPost.Content = strings.TrimSpace(updatedPost.Content)
+
+	if updatedPost.Title == "" {
 		http.Error(w, "Title is required", http.StatusBadRequest)
 		return
 	}
 
-	if strings.TrimSpace(updatedPost.Content) == "" {
+	if updatedPost.Content == "" {
 		http.Error(w, "Content is required", http.StatusBadRequest)
 		return
 	}
