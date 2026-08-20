@@ -5,14 +5,20 @@ import (
 	"net/http"
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Blog API is running")
+func users(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Users API")
 }
+
+func posts(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Posts API")
+}
+
 
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", hello)
+	mux.HandleFunc("/users", users)
+	mux.HandleFunc("/posts", posts)
 
 	server := http.Server{
 		Addr:    ":8080",
