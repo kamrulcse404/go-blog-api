@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"blogapi/models"
+	"blogapi/storage"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -10,13 +11,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var postList []models.Post
-var nextID = 1
-
 func Posts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	json.NewEncoder(w).Encode(postList)
+	posts := storage.GetPosts()
+	json.NewEncoder(w).Encode(posts)
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
@@ -61,10 +60,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.ID = nextID
-	nextID++
-
-	postList = append(postList, post)
+	post = storage.CreatePost(post)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
