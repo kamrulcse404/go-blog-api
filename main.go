@@ -2,6 +2,7 @@ package main
 
 import (
 	"blogapi/handlers"
+	"blogapi/middleware"
 	"fmt"
 	"net/http"
 
@@ -10,6 +11,8 @@ import (
 
 func main() {
 	r := chi.NewRouter()
+
+	r.Use(middleware.Logger)
 
 	r.Get("/users", handlers.Users)
 	r.Get("/posts", handlers.Posts)
