@@ -26,5 +26,18 @@ func GetPostByID(id int) (models.Post, bool) {
 		}
 	}
 
-	return  models.Post{}, false
+	return models.Post{}, false
+}
+
+func UpdatePost(id int, updatedPost models.Post) (models.Post, bool) {
+
+	for i, post := range postList {
+		if post.ID == id {
+			postList[i].Title = updatedPost.Title
+			postList[i].Content = updatedPost.Content
+			return postList[i], true
+		}
+	}
+
+	return models.Post{}, false
 }

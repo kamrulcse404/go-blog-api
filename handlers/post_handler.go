@@ -96,18 +96,15 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, post := range postList {
-		if post.ID == id {
-			postList[i].Title = updatedPost.Title
-			postList[i].Content = updatedPost.Content
+	post, found := storage.UpdatePost(id, updatedPost)
 
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(postList[i])
-			return
-		}
+	if !found {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Post not found", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
 }
 
 func DeletePost(w http.ResponseWriter, r *http.Request) {
