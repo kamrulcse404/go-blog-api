@@ -18,3 +18,13 @@ func CreatePost(post models.Post) models.Post {
 	return post
 }
 
+func GetPostByID(id int) (models.Post, bool) {
+
+	for _, post := range postList {
+		if post.ID == id {
+			return post, true
+		}
+	}
+
+	return  models.Post{}, false
+}

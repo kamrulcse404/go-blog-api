@@ -27,15 +27,15 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, post := range postList {
-		if post.ID == id {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(post)
-			return
-		}
+	post, found := storage.GetPostByID(id)
+
+	if !found {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Post not found", http.StatusNotFound)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
