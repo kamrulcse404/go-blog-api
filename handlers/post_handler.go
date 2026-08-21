@@ -116,13 +116,12 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, post := range postList {
-		if post.ID == id {
-			postList = append(postList[:i], postList[i+1:]...)
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
+	deleted := storage.DeletePost(id)
+
+	if !deleted {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
 	}
 
-	http.Error(w, "Post not found", http.StatusNotFound)
+	w.WriteHeader(http.StatusNoContent)
 }

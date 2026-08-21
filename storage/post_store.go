@@ -41,3 +41,13 @@ func UpdatePost(id int, updatedPost models.Post) (models.Post, bool) {
 
 	return models.Post{}, false
 }
+
+func DeletePost(id int) bool {
+	for i, post := range postList {
+		if post.ID == id {
+			postList = append(postList[:i], postList[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
