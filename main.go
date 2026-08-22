@@ -12,6 +12,7 @@ import (
 func main() {
 	r := chi.NewRouter()
 
+	r.Use(middleware.Recovery)
 	r.Use(middleware.Logger)
 
 	r.Get("/users", handlers.Users)
