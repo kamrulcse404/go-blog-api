@@ -12,11 +12,10 @@ import (
 )
 
 func Posts(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 
-	// posts := storage.GetPosts()
-	// json.NewEncoder(w).Encode(posts)
-	panic("testing recovery")
+	posts := storage.GetPosts()
+	json.NewEncoder(w).Encode(posts)
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
