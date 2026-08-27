@@ -3,10 +3,12 @@ package handlers
 import (
 	"blogapi/models"
 	"blogapi/storage"
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -67,7 +69,11 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	post, err := storage.GetPostByID(id)
 
 	if err != nil {
-		http.Error(w, "Post not found", http.StatusNotFound)
+		if err == sql.ErrNoRows {
+			http.Error(w, "Post not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
