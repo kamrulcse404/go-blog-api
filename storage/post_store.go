@@ -1,6 +1,9 @@
 package storage
 
-import "blogapi/models"
+import (
+	"blogapi/models"
+	"database/sql"
+)
 
 func GetPosts() ([]models.Post, error) {
 
@@ -95,12 +98,27 @@ func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 	return post, nil
 }
 
-// func DeletePost(id int) bool {
-// 	for i, post := range postList {
-// 		if post.ID == id {
-// 			postList = append(postList[:i], postList[i+1:]...)
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+func DeletePost(id int) error {
+	
+	query := `
+		DELETE FROM posts 
+		WHERE id = $1
+	`
+
+	result, err := DB.Exec(query, id)
+
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}

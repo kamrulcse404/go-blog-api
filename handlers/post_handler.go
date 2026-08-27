@@ -5,6 +5,7 @@ import (
 	"blogapi/storage"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -133,21 +134,27 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func DeletePost(w http.ResponseWriter, r *http.Request) {
-// 	idParam := chi.URLParam(r, "id")
-// 	id, err := strconv.Atoi(idParam)
+func DeletePost(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
 
-// 	if err != nil {
-// 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-// 		return
-// 	}
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
-// 	deleted := storage.DeletePost(id)
+	err = storage.DeletePost(id)
 
-// 	if !deleted {
-// 		http.Error(w, "Post not found", http.StatusNotFound)
-// 		return
-// 	}
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "Post not found", http.StatusNotFound)
+			return
+		}
 
-// 	w.WriteHeader(http.StatusNoContent)
-// }
+		log.Printf("failed to delete post %d: %v", id, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
