@@ -117,7 +117,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	post, err := storage.UpdatePost(id, updatedPost)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}

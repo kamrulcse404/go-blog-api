@@ -19,7 +19,7 @@ func GetPosts() ([]models.Post, error) {
 
 	defer rows.Close()
 
-	var posts []models.Post
+	posts := []models.Post{}
 	for rows.Next() {
 		var post models.Post
 
