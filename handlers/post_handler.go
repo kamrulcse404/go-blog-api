@@ -51,7 +51,9 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	post, err = storage.CreatePost(post)
 
 	if err != nil {
+		log.Printf("failed to create post: %v", err)
 		http.Error(w, "Failed to create post", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
