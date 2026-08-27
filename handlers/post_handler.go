@@ -1,26 +1,58 @@
 package handlers
 
 import (
-	// "blogapi/models"
+	"blogapi/models"
 	"blogapi/storage"
 	"encoding/json"
 	"net/http"
 	// "strconv"
-	// "strings"
-
+	"strings"
 	// "github.com/go-chi/chi/v5"
 )
 
 func Posts(w http.ResponseWriter, r *http.Request) {
 	posts, err := storage.GetPosts()
-	
+
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
+}
+
+func CreatePost(w http.ResponseWriter, r *http.Request) {
+	var post models.Post
+
+	err := json.NewDecoder(r.Body).Decode(&post)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	post.Title = strings.TrimSpace(post.Title)
+	post.Content = strings.TrimSpace(post.Content)
+
+	if post.Title == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
+
+	if post.Content == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
+		return
+	}
+
+	post, err = storage.CreatePost(post)
+
+	if err != nil {
+		http.Error(w, "Failed to create post", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(post)
 }
 
 // func Post(w http.ResponseWriter, r *http.Request) {
@@ -40,35 +72,6 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 // 	}
 
 // 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(post)
-// }
-
-// func CreatePost(w http.ResponseWriter, r *http.Request) {
-// 	var post models.Post
-
-// 	err := json.NewDecoder(r.Body).Decode(&post)
-// 	if err != nil {
-// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	post.Title = strings.TrimSpace(post.Title)
-// 	post.Content = strings.TrimSpace(post.Content)
-
-// 	if post.Title == "" {
-// 		http.Error(w, "Title is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	if post.Content == "" {
-// 		http.Error(w, "Content is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	post = storage.CreatePost(post)
-
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.WriteHeader(http.StatusCreated)
 // 	json.NewEncoder(w).Encode(post)
 // }
 

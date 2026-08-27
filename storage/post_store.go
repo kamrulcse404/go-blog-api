@@ -2,9 +2,6 @@ package storage
 
 import "blogapi/models"
 
-// var postList []models.Post
-// var nextID = 1
-
 func GetPosts() ([]models.Post, error) {
 
 	rows, err := DB.Query(`
@@ -43,13 +40,20 @@ func GetPosts() ([]models.Post, error) {
 	return posts, nil
 }
 
-// func CreatePost(post models.Post) models.Post {
-// 	post.ID = nextID
-// 	nextID++
+func CreatePost(post models.Post) (models.Post, error) {
+	query := `
+		INSERT INTO posts (title, content)
+		VALUES ($1, $2)
+		RETURNING id
+	`
 
-// 	postList = append(postList, post)
-// 	return post
-// }
+	err := DB.QueryRow(query, post.Title, post.Content).Scan(&post.ID)
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	return post, nil
+}
 
 // func GetPostByID(id int) (models.Post, bool) {
 

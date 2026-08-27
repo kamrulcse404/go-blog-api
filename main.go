@@ -24,8 +24,8 @@ func main() {
 
 	// r.Get("/users", handlers.Users)
 	r.Get("/posts", handlers.Posts)
+	r.Post("/posts", handlers.CreatePost)
 	// r.Get("/posts/{id}", handlers.Post)
-	// r.Post("/posts", handlers.CreatePost)
 	// r.Put("/posts/{id}", handlers.UpdatePost)
 	// r.Delete("/posts/{id}", handlers.DeletePost)
 
