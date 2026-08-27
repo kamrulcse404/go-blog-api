@@ -55,16 +55,26 @@ func CreatePost(post models.Post) (models.Post, error) {
 	return post, nil
 }
 
-// func GetPostByID(id int) (models.Post, bool) {
+func GetPostByID(id int) (models.Post, error) {
+	query := `
+		SELECT id, title, content 
+		FROM posts 
+		WHERE id = $1
+	`
+	var post models.Post
 
-// 	for _, post := range postList {
-// 		if post.ID == id {
-// 			return post, true
-// 		}
-// 	}
+	err := DB.QueryRow(query, id).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+	)
 
-// 	return models.Post{}, false
-// }
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	return post, nil
+}
 
 // func UpdatePost(id int, updatedPost models.Post) (models.Post, bool) {
 

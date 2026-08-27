@@ -5,9 +5,9 @@ import (
 	"blogapi/storage"
 	"encoding/json"
 	"net/http"
-	// "strconv"
+	"strconv"
 	"strings"
-	// "github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5"
 )
 
 func Posts(w http.ResponseWriter, r *http.Request) {
@@ -55,25 +55,25 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
-// func Post(w http.ResponseWriter, r *http.Request) {
-// 	idParam := chi.URLParam(r, "id")
-// 	id, err := strconv.Atoi(idParam)
+func Post(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
 
-// 	if err != nil {
-// 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-// 		return
-// 	}
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
-// 	post, found := storage.GetPostByID(id)
+	post, err := storage.GetPostByID(id)
 
-// 	if !found {
-// 		http.Error(w, "Post not found", http.StatusNotFound)
-// 		return
-// 	}
+	if err != nil {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
+	}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(post)
-// }
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
+}
 
 // func UpdatePost(w http.ResponseWriter, r *http.Request) {
 // 	idParam := chi.URLParam(r, "id")
