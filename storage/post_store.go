@@ -76,18 +76,24 @@ func GetPostByID(id int) (models.Post, error) {
 	return post, nil
 }
 
-// func UpdatePost(id int, updatedPost models.Post) (models.Post, bool) {
+func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 
-// 	for i, post := range postList {
-// 		if post.ID == id {
-// 			postList[i].Title = updatedPost.Title
-// 			postList[i].Content = updatedPost.Content
-// 			return postList[i], true
-// 		}
-// 	}
+	query := `
+		UPDATE posts 
+		set title = $1, content = $2
+		WHERE id = $3
+		RETURNING id, title, content
+	`
+	var post models.Post
 
-// 	return models.Post{}, false
-// }
+	err := DB.QueryRow(query, updatedPost.Title, updatedPost.Content, id).Scan(&post.ID, &post.Title, &post.Content)
+
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	return post, nil
+}
 
 // func DeletePost(id int) bool {
 // 	for i, post := range postList {

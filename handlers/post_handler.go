@@ -5,6 +5,7 @@ import (
 	"blogapi/storage"
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -81,45 +82,56 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
-// func UpdatePost(w http.ResponseWriter, r *http.Request) {
-// 	idParam := chi.URLParam(r, "id")
-// 	id, err := strconv.Atoi(idParam)
+func UpdatePost(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idParam)
 
-// 	if err != nil {
-// 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-// 		return
-// 	}
+	if err != nil || id <= 0 {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
 
-// 	var updatedPost models.Post
-// 	err = json.NewDecoder(r.Body).Decode(&updatedPost)
-// 	if err != nil {
-// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-// 		return
-// 	}
+	var updatedPost models.Post
+	err = json.NewDecoder(r.Body).Decode(&updatedPost)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
 
-// 	updatedPost.Title = strings.TrimSpace(updatedPost.Title)
-// 	updatedPost.Content = strings.TrimSpace(updatedPost.Content)
+	updatedPost.Title = strings.TrimSpace(updatedPost.Title)
+	updatedPost.Content = strings.TrimSpace(updatedPost.Content)
 
-// 	if updatedPost.Title == "" {
-// 		http.Error(w, "Title is required", http.StatusBadRequest)
-// 		return
-// 	}
+	if updatedPost.Title == "" {
+		http.Error(w, "Title is required", http.StatusBadRequest)
+		return
+	}
 
-// 	if updatedPost.Content == "" {
-// 		http.Error(w, "Content is required", http.StatusBadRequest)
-// 		return
-// 	}
+	if updatedPost.Content == "" {
+		http.Error(w, "Content is required", http.StatusBadRequest)
+		return
+	}
 
-// 	post, found := storage.UpdatePost(id, updatedPost)
+	post, err := storage.UpdatePost(id, updatedPost)
 
-// 	if !found {
-// 		http.Error(w, "Post not found", http.StatusNotFound)
-// 		return
-// 	}
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Post not found", http.StatusNotFound)
+			return
+		}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(post)
-// }
+		log.Printf("failed to update post %d: %v", id, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(post)
+
+	if err != nil {
+		log.Printf("failed to encode post response: %v", err)
+	}
+}
 
 // func DeletePost(w http.ResponseWriter, r *http.Request) {
 // 	idParam := chi.URLParam(r, "id")
