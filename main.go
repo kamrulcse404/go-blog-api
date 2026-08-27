@@ -26,10 +26,10 @@ func main() {
 	r.Post("/posts", handlers.CreatePost)
 	r.Get("/posts/{id}", handlers.Post)
 	r.Put("/posts/{id}", handlers.UpdatePost)
-	// r.Delete("/posts/{id}", handlers.DeletePost)
+	r.Delete("/posts/{id}", handlers.DeletePost)
 	
 	// r.Get("/users", handlers.Users)
-	
+
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: r,
