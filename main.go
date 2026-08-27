@@ -17,6 +17,8 @@ func main() {
 		log.Fatal("Failed to connect to database: ", err)
 	}
 
+	defer storage.DB.Close()
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Recovery)
@@ -37,5 +39,9 @@ func main() {
 
 	fmt.Println("Server running on : 8080")
 
-	server.ListenAndServe()
+	err := server.ListenAndServe()
+
+	if err != nil {
+		log.Fatal("Server Failed: ", err)
+	}
 }

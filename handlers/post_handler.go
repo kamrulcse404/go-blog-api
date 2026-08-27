@@ -65,7 +65,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
-	if err != nil {
+	if err != nil || id <= 0 {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
@@ -73,7 +73,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	post, err := storage.GetPostByID(id)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "Post not found", http.StatusNotFound)
 			return
 		}
