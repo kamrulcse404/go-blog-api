@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ValidationPost(post *models.Post) error {
+func ValidatePost(post *models.Post) error {
 
 	post.Title = strings.TrimSpace(post.Title)
 	post.Content = strings.TrimSpace(post.Content)

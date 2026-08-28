@@ -2,17 +2,18 @@ package storage
 
 import (
 	"blogapi/models"
+	"context"
 	"database/sql"
 )
 
-func GetPosts(limit int, offset int) ([]models.Post, error) {
+func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error) {
 
-	rows, err := DB.Query(`
-		SELECT id, title, content,  created_at, updated_at
+	query := `SELECT id, title, content,  created_at, updated_at
 		FROM posts
 		ORDER BY created_at DESC, id DESC
-		LIMIT $1 OFFSET $2
-	`, limit, offset)
+		LIMIT $1 OFFSET $2`
+
+	rows, err := DB.QueryContext(ctx, query, limit, offset)
 
 	if err != nil {
 		return nil, err
@@ -46,14 +47,14 @@ func GetPosts(limit int, offset int) ([]models.Post, error) {
 	return posts, nil
 }
 
-func CreatePost(post models.Post) (models.Post, error) {
+func CreatePost(ctx context.Context, post models.Post) (models.Post, error) {
 	query := `
 		INSERT INTO posts (title, content)
 		VALUES ($1, $2)
 		RETURNING id, title, content, created_at, updated_at
 	`
 
-	err := DB.QueryRow(query, post.Title, post.Content).Scan(
+	err := DB.QueryRowContext(ctx, query, post.Title, post.Content).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
@@ -67,7 +68,7 @@ func CreatePost(post models.Post) (models.Post, error) {
 	return post, nil
 }
 
-func GetPostByID(id int) (models.Post, error) {
+func GetPostByID(ctx context.Context, id int) (models.Post, error) {
 	query := `
 		SELECT id, title, content, created_at, updated_at
 		FROM posts 
@@ -75,7 +76,7 @@ func GetPostByID(id int) (models.Post, error) {
 	`
 	var post models.Post
 
-	err := DB.QueryRow(query, id).Scan(
+	err := DB.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
@@ -90,7 +91,7 @@ func GetPostByID(id int) (models.Post, error) {
 	return post, nil
 }
 
-func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
+func UpdatePost(ctx context.Context, id int, updatedPost models.Post) (models.Post, error) {
 
 	query := `
 		UPDATE posts
@@ -104,7 +105,8 @@ func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 
 	var post models.Post
 
-	err := DB.QueryRow(
+	err := DB.QueryRowContext(
+		ctx,
 		query,
 		updatedPost.Title,
 		updatedPost.Content,
@@ -124,14 +126,14 @@ func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 	return post, nil
 }
 
-func DeletePost(id int) error {
+func DeletePost(ctx context.Context, id int) error {
 
 	query := `
 		DELETE FROM posts 
 		WHERE id = $1
 	`
 
-	result, err := DB.Exec(query, id)
+	result, err := DB.ExecContext(ctx, query, id)
 
 	if err != nil {
 		return err
@@ -149,7 +151,7 @@ func DeletePost(id int) error {
 	return nil
 }
 
-func CountPosts() (int, error) {
+func CountPosts(ctx context.Context) (int, error) {
 	var total int
 
 	query := `
@@ -157,7 +159,7 @@ func CountPosts() (int, error) {
 		FROM posts
 	`
 
-	err := DB.QueryRow(query).Scan(&total)
+	err := DB.QueryRowContext(ctx, query).Scan(&total)
 	if err != nil {
 		return 0, err
 	}

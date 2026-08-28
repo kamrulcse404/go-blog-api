@@ -45,14 +45,15 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		offset = parsed
 	}
 
-	posts, err := storage.GetPosts(limit, offset)
+	ctx := r.Context()
+	posts, err := storage.GetPosts(ctx, limit, offset)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
 		return
 	}
 
-	total, err := storage.CountPosts()
+	total, err := storage.CountPosts(ctx)
 	if err != nil {
 		http.Error(w, "Failed to count posts", http.StatusInternalServerError)
 		return
@@ -80,13 +81,13 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ValidationPost(&post)
+	err = ValidatePost(&post)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	post, err = storage.CreatePost(post)
+	post, err = storage.CreatePost(r.Context(), post)
 
 	if err != nil {
 		log.Printf("failed to create post: %v", err)
@@ -108,7 +109,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := storage.GetPostByID(id)
+	post, err := storage.GetPostByID(r.Context(), id)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -139,13 +140,13 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ValidationPost(&updatedPost)
+	err = ValidatePost(&updatedPost)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	post, err := storage.UpdatePost(id, updatedPost)
+	post, err := storage.UpdatePost(r.Context(), id, updatedPost)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -176,7 +177,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.DeletePost(id)
+	err = storage.DeletePost(r.Context(), id)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
