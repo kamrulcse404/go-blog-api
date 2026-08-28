@@ -21,7 +21,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	value := r.URL.Query().Get("limit")
 	if value != "" {
 		parsed, err := strconv.Atoi(value)
-		if parsed <= 0 || err != nil {
+		if err != nil || parsed <= 0 {
 			http.Error(w, "Invalid limit", http.StatusBadRequest)
 			return
 		}
