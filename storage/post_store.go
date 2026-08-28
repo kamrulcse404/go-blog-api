@@ -5,13 +5,14 @@ import (
 	"database/sql"
 )
 
-func GetPosts() ([]models.Post, error) {
+func GetPosts(limit int, offset int) ([]models.Post, error) {
 
 	rows, err := DB.Query(`
 		SELECT id, title, content,  created_at, updated_at
 		FROM posts
 		ORDER BY id
-	`)
+		LIMIT $1 OFFSET $2
+	`, limit, offset)
 
 	if err != nil {
 		return nil, err

@@ -15,7 +15,38 @@ import (
 )
 
 func Posts(w http.ResponseWriter, r *http.Request) {
-	posts, err := storage.GetPosts()
+
+	limit := 10
+	offset := 0
+
+	value := r.URL.Query().Get("limit")
+	if value != "" {
+		parsed, err := strconv.Atoi(value)
+		if parsed <= 0 || err != nil {
+			http.Error(w, "Invalid limit", http.StatusBadRequest)
+			return
+		}
+
+		if parsed > 100 {
+			http.Error(w, "Limit cannot exceed 100", http.StatusBadRequest)
+			return
+		}
+
+		limit = parsed
+	}
+
+	if value := r.URL.Query().Get("offset"); value != "" {
+		parsed, err := strconv.Atoi(value)
+
+		if err != nil || parsed < 0 {
+			http.Error(w, "Invalid offset", http.StatusBadRequest)
+			return
+		}
+
+		offset = parsed
+	}
+
+	posts, err := storage.GetPosts(limit, offset)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
