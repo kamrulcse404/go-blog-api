@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -81,16 +80,9 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post.Title = strings.TrimSpace(post.Title)
-	post.Content = strings.TrimSpace(post.Content)
-
-	if post.Title == "" {
-		http.Error(w, "Title is required", http.StatusBadRequest)
-		return
-	}
-
-	if post.Content == "" {
-		http.Error(w, "Content is required", http.StatusBadRequest)
+	err = ValidationPost(&post)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -147,16 +139,9 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedPost.Title = strings.TrimSpace(updatedPost.Title)
-	updatedPost.Content = strings.TrimSpace(updatedPost.Content)
-
-	if updatedPost.Title == "" {
-		http.Error(w, "Title is required", http.StatusBadRequest)
-		return
-	}
-
-	if updatedPost.Content == "" {
-		http.Error(w, "Content is required", http.StatusBadRequest)
+	err = ValidationPost(&updatedPost)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
