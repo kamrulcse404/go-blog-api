@@ -148,3 +148,19 @@ func DeletePost(id int) error {
 
 	return nil
 }
+
+func CountPosts() (int, error) {
+	var total int
+
+	query := `
+		SELECT COUNT(*)
+		FROM posts
+	`
+
+	err := DB.QueryRow(query).Scan(&total)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}

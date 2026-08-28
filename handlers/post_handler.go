@@ -53,8 +53,23 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	total, err := storage.CountPosts()
+	if err != nil {
+		http.Error(w, "Failed to count posts", http.StatusInternalServerError)
+		return
+	}
+
+	response := models.PostListResponse{
+		Data: posts,
+		Pagination: models.Pagination{
+			Limit:  limit,
+			Offset: offset,
+			Total:  total,
+		},
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(posts)
+	json.NewEncoder(w).Encode(response)
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
