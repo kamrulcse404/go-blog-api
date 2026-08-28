@@ -8,7 +8,7 @@ import (
 func GetPosts() ([]models.Post, error) {
 
 	rows, err := DB.Query(`
-		SELECT id, title, content
+		SELECT id, title, content,  created_at, updated_at
 		FROM posts
 		ORDER BY id
 	`)
@@ -27,6 +27,8 @@ func GetPosts() ([]models.Post, error) {
 			&post.ID,
 			&post.Title,
 			&post.Content,
+			&post.CreatedAt,
+			&post.UpdatedAt,
 		)
 
 		if err != nil {
@@ -47,10 +49,16 @@ func CreatePost(post models.Post) (models.Post, error) {
 	query := `
 		INSERT INTO posts (title, content)
 		VALUES ($1, $2)
-		RETURNING id
+		RETURNING id, title, content, created_at, updated_at
 	`
 
-	err := DB.QueryRow(query, post.Title, post.Content).Scan(&post.ID)
+	err := DB.QueryRow(query, post.Title, post.Content).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+		&post.CreatedAt,
+		&post.UpdatedAt,
+	)
 	if err != nil {
 		return models.Post{}, err
 	}
@@ -60,7 +68,7 @@ func CreatePost(post models.Post) (models.Post, error) {
 
 func GetPostByID(id int) (models.Post, error) {
 	query := `
-		SELECT id, title, content 
+		SELECT id, title, content, created_at, updated_at
 		FROM posts 
 		WHERE id = $1
 	`
@@ -70,6 +78,8 @@ func GetPostByID(id int) (models.Post, error) {
 		&post.ID,
 		&post.Title,
 		&post.Content,
+		&post.CreatedAt,
+		&post.UpdatedAt,
 	)
 
 	if err != nil {
@@ -82,14 +92,29 @@ func GetPostByID(id int) (models.Post, error) {
 func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 
 	query := `
-		UPDATE posts 
-		set title = $1, content = $2
+		UPDATE posts
+		SET
+			title = $1,
+			content = $2,
+			updated_at = NOW()
 		WHERE id = $3
-		RETURNING id, title, content
+		RETURNING id, title, content, created_at, updated_at
 	`
+
 	var post models.Post
 
-	err := DB.QueryRow(query, updatedPost.Title, updatedPost.Content, id).Scan(&post.ID, &post.Title, &post.Content)
+	err := DB.QueryRow(
+		query,
+		updatedPost.Title,
+		updatedPost.Content,
+		id,
+	).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+		&post.CreatedAt,
+		&post.UpdatedAt,
+	)
 
 	if err != nil {
 		return models.Post{}, err
@@ -99,7 +124,7 @@ func UpdatePost(id int, updatedPost models.Post) (models.Post, error) {
 }
 
 func DeletePost(id int) error {
-	
+
 	query := `
 		DELETE FROM posts 
 		WHERE id = $1
