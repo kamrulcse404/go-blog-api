@@ -4,6 +4,8 @@ import (
 	"blogapi/models"
 	"context"
 	"errors"
+	"fmt"
+	"os/user"
 
 	"github.com/lib/pq"
 )
@@ -44,6 +46,28 @@ func CreateUser(ctx context.Context, user models.User) (models.User, error) {
 		}
 
 		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+func GetUserByEmail(ctx context.Context, email string) (models.User, error) {
+	query := `
+		SELECT 
+			id,
+			name,
+			email,
+			password_hash,
+			created_at,
+			updated_at
+		FROM users
+		WHERE email=$1
+	`
+	var user models.User
+	err := DB.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
+
+	if err != nil {
+		return models.User{}, fmt.Errorf("get user by email: %w", err)
 	}
 
 	return user, nil
