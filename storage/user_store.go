@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os/user"
 
 	"github.com/lib/pq"
 )
