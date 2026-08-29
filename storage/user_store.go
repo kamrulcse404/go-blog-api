@@ -26,7 +26,6 @@ func CreateUser(ctx context.Context, user models.User) (models.User, error) {
 		&user.ID,
 		&user.Name,
 		&user.Email,
-		&user.PasswordHash,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

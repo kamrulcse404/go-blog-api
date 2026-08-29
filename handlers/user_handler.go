@@ -42,6 +42,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err = storage.CreateUser(r.Context(), user)
 	if err != nil {
+
+		
+
 		log.Printf("failed to create user: %v", err)
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return
