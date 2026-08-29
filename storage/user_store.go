@@ -17,7 +17,7 @@ func CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	`
 
 	err := DB.QueryRowContext(
-		ctx, 
+		ctx,
 		query,
 		user.Name,
 		user.Email,
