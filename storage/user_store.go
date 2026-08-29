@@ -3,7 +3,12 @@ package storage
 import (
 	"blogapi/models"
 	"context"
+	"errors"
+
+	"github.com/lib/pq"
 )
+
+var ErrEmailAlreadyExists = errors.New("email already exists")
 
 func CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	query := `
@@ -31,6 +36,13 @@ func CreateUser(ctx context.Context, user models.User) (models.User, error) {
 	)
 
 	if err != nil {
+
+		var pqErr *pq.Error
+
+		if errors.As(err, &pqErr) && string(pqErr.Code) == "23505" && pqErr.Constraint == "users_email_key" {
+			return models.User{}, ErrEmailAlreadyExists
+		}
+
 		return models.User{}, err
 	}
 

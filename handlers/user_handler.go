@@ -5,6 +5,7 @@ import (
 	"blogapi/security"
 	"blogapi/storage"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 )
@@ -43,7 +44,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	user, err = storage.CreateUser(r.Context(), user)
 	if err != nil {
 
-		
+		if errors.Is(err, storage.ErrEmailAlreadyExists) {
+			http.Error(w, "Email already exists", http.StatusConflict)
+			return
+		}
 
 		log.Printf("failed to create user: %v", err)
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
