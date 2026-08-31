@@ -49,13 +49,14 @@ func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error)
 
 func CreatePost(ctx context.Context, post models.Post) (models.Post, error) {
 	query := `
-		INSERT INTO posts (title, content)
-		VALUES ($1, $2)
-		RETURNING id, title, content, created_at, updated_at
+		INSERT INTO posts (user_id, title, content)
+			VALUES ($1, $2, $3)
+		RETURNING id, user_id, title, content, created_at, updated_at
 	`
 
-	err := DB.QueryRowContext(ctx, query, post.Title, post.Content).Scan(
+	err := DB.QueryRowContext(ctx, query, post.UserID, post.Title, post.Content).Scan(
 		&post.ID,
+		&post.UserID,
 		&post.Title,
 		&post.Content,
 		&post.CreatedAt,

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blogapi/middleware"
 	"blogapi/models"
 	"blogapi/storage"
 	"database/sql"
@@ -73,6 +74,13 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var post models.Post
 
 	err := json.NewDecoder(r.Body).Decode(&post)
@@ -87,6 +95,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	post.UserID = userID
 	post, err = storage.CreatePost(r.Context(), post)
 
 	if err != nil {
