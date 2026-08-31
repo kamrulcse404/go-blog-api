@@ -34,3 +34,44 @@ func GenerateToken(userID int) (string, error) {
 
 	return tokenString, nil
 }
+
+func ValidateToken(tokenString string) (int, error) {
+	secret := os.Getenv("JWT_SECRET")
+
+	if secret == "" {
+		return 0, fmt.Errorf("JWT_SECRET is not configured")
+	}
+
+	token, err := jwt.Parse(
+		tokenString,
+		func(t *jwt.Token) (any, error) {
+			return []byte(secret), nil
+		},
+
+		jwt.WithValidMethods([]string{
+			jwt.SigningMethodHS256.Alg(),
+		}),
+	)
+
+	if err != nil {
+		return 0, fmt.Errorf("validate token: %w", err)
+	}
+
+	if !token.Valid {
+		return 0, fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return 0, fmt.Errorf("invalid token claims")
+	}
+
+	userIDValue, ok := claims["user_id"].(float64)
+
+	if !ok || userIDValue <= 0 {
+		return 0, fmt.Errorf("invalid user_id claim")
+	}
+
+	return int(userIDValue), nil
+}
