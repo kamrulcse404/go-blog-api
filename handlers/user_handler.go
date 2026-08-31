@@ -94,8 +94,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := security.GenerateToken(user.ID)
+	if err != nil {
+		log.Printf("failed to generate token: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+
+	response := models.LoginResponse{
+		User: user,
+		Token: token,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(user)
+	err = json.NewEncoder(w).Encode(response)
 
 	if err != nil {
 		log.Printf("failed to encode login response: %v", err)
