@@ -8,7 +8,7 @@ import (
 
 func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error) {
 
-	query := `SELECT id, title, content,  created_at, updated_at
+	query := `SELECT id, user_id, title, content,  created_at, updated_at
 		FROM posts
 		ORDER BY created_at DESC, id DESC
 		LIMIT $1 OFFSET $2`
@@ -27,6 +27,7 @@ func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error)
 
 		err = rows.Scan(
 			&post.ID,
+			&post.UserID,
 			&post.Title,
 			&post.Content,
 			&post.CreatedAt,
@@ -71,7 +72,7 @@ func CreatePost(ctx context.Context, post models.Post) (models.Post, error) {
 
 func GetPostByID(ctx context.Context, id int) (models.Post, error) {
 	query := `
-		SELECT id, title, content, created_at, updated_at
+		SELECT id, user_id, title, content, created_at, updated_at
 		FROM posts 
 		WHERE id = $1
 	`
@@ -79,6 +80,7 @@ func GetPostByID(ctx context.Context, id int) (models.Post, error) {
 
 	err := DB.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
+		&post.UserID,
 		&post.Title,
 		&post.Content,
 		&post.CreatedAt,
