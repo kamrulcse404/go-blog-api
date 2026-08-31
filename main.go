@@ -30,7 +30,8 @@ func main() {
 	r.Put("/posts/{id}", handlers.UpdatePost)
 	r.Delete("/posts/{id}", handlers.DeletePost)
 	
-	// r.Get("/users", handlers.Users)
+	r.Post("/users/register", handlers.RegisterUser)
+	r.Post("/users/login", handlers.Login)
 
 	server := http.Server{
 		Addr:    ":8080",
