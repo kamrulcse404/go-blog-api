@@ -94,7 +94,7 @@ func GetPostByID(ctx context.Context, id int) (models.Post, error) {
 	return post, nil
 }
 
-func UpdatePost(ctx context.Context, id int, updatedPost models.Post) (models.Post, error) {
+func UpdatePost(ctx context.Context, id int, userID int, updatedPost models.Post) (models.Post, error) {
 
 	query := `
 		UPDATE posts
@@ -103,7 +103,8 @@ func UpdatePost(ctx context.Context, id int, updatedPost models.Post) (models.Po
 			content = $2,
 			updated_at = NOW()
 		WHERE id = $3
-		RETURNING id, title, content, created_at, updated_at
+		AND user_id = $4
+		RETURNING id, user_id, title, content, created_at, updated_at
 	`
 
 	var post models.Post
@@ -114,8 +115,10 @@ func UpdatePost(ctx context.Context, id int, updatedPost models.Post) (models.Po
 		updatedPost.Title,
 		updatedPost.Content,
 		id,
+		userID,
 	).Scan(
 		&post.ID,
+		&post.UserID,
 		&post.Title,
 		&post.Content,
 		&post.CreatedAt,
@@ -129,14 +132,15 @@ func UpdatePost(ctx context.Context, id int, updatedPost models.Post) (models.Po
 	return post, nil
 }
 
-func DeletePost(ctx context.Context, id int) error {
+func DeletePost(ctx context.Context, id int,  userID int) error {
 
 	query := `
 		DELETE FROM posts 
 		WHERE id = $1
+		AND user_id = $2
 	`
 
-	result, err := DB.ExecContext(ctx, query, id)
+	result, err := DB.ExecContext(ctx, query, id, userID)
 
 	if err != nil {
 		return err

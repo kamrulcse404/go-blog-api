@@ -134,6 +134,14 @@ func Post(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.GetUserID(r.Context())
+
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
@@ -155,7 +163,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := storage.UpdatePost(r.Context(), id, updatedPost)
+	post, err := storage.UpdatePost(r.Context(), id, userID, updatedPost)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -178,6 +186,13 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	idParam := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idParam)
 
@@ -186,7 +201,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.DeletePost(r.Context(), id)
+	err = storage.DeletePost(r.Context(), id, userID)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
