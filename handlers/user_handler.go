@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blogapi/middleware"
 	"blogapi/models"
 	"blogapi/security"
 	"blogapi/storage"
@@ -98,17 +99,60 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to generate token: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
 	response := models.LoginResponse{
-		User: user,
+		User:  user,
 		Token: token,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(response)
 
 	if err != nil {
 		log.Printf("failed to encode login response: %v", err)
 	}
+}
+
+func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.GetUserID(r.Context())
+
+	if !ok {
+		http.Error(
+			w,
+			"Unauthorized",
+			http.StatusUnauthorized,
+		)
+		return
+	}
+
+	user, err := storage.GetUserByID(r.Context(), userID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(
+				w,
+				"User not found",
+				http.StatusNotFound,
+			)
+			return
+		}
+
+		log.Printf("failed to get current user %d: %v", userID, err)
+
+		http.Error(
+			w,
+			"Internal Server Error",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(user)
 }

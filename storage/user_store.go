@@ -71,3 +71,39 @@ func GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 
 	return user, nil
 }
+
+func GetUserByID(ctx context.Context, id int) (models.User, error) {
+
+	query := `
+		SELECT
+			id,
+			name,
+			email,
+			password_hash,
+			created_at,
+			updated_at
+		FROM users
+		WHERE id=$1
+	`
+
+	var user models.User
+
+	err := DB.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.PasswordHash,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return models.User{}, fmt.Errorf("get user by id: %w", err)
+	}
+
+	return user, nil
+}

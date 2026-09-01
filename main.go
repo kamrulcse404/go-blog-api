@@ -33,6 +33,8 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Authenticate)
 
+		r.Get("/users/me", handlers.GetCurrentUser)
+
 		r.Post("/posts", handlers.CreatePost)
 		r.Put("/posts/{id}", handlers.UpdatePost)
 		r.Delete("/posts/{id}", handlers.DeletePost)
