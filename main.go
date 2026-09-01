@@ -25,13 +25,18 @@ func main() {
 	r.Use(middleware.Recovery)
 
 	r.Get("/posts", handlers.Posts)
-	r.Post("/posts", handlers.CreatePost)
 	r.Get("/posts/{id}", handlers.Post)
-	r.Put("/posts/{id}", handlers.UpdatePost)
-	r.Delete("/posts/{id}", handlers.DeletePost)
-	
+
 	r.Post("/users/register", handlers.RegisterUser)
 	r.Post("/users/login", handlers.Login)
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Authenticate)
+
+		r.Post("/posts", handlers.CreatePost)
+		r.Put("/posts/{id}", handlers.UpdatePost)
+		r.Delete("/posts/{id}", handlers.DeletePost)
+	})
 
 	server := http.Server{
 		Addr:    ":8080",
