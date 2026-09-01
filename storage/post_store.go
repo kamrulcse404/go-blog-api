@@ -6,7 +6,7 @@ import (
 	"database/sql"
 )
 
-func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error) {
+func GetPosts(ctx context.Context, limit int, offset int, search string) ([]models.Post, error) {
 
 	query := `SELECT 
 				posts.id,
@@ -23,12 +23,17 @@ func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error)
 			FROM posts
 			JOIN users 
 				ON posts.user_id=users.id
+
+			WHERE posts.title ILIKE $1
+			OR posts.content ILIKE $1
 		
 			ORDER BY posts.created_at DESC, posts.id DESC
-			LIMIT $1 OFFSET $2
+			LIMIT $2 OFFSET $3
 		`
 
-	rows, err := DB.QueryContext(ctx, query, limit, offset)
+	searchPattern := "%" + search + "%"
+
+	rows, err := DB.QueryContext(ctx, query, searchPattern, limit, offset)
 
 	if err != nil {
 		return nil, err

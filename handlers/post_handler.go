@@ -20,6 +20,8 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	offset := 0
 
 	value := r.URL.Query().Get("limit")
+	search := r.URL.Query().Get("search")
+
 	if value != "" {
 		parsed, err := strconv.Atoi(value)
 		if err != nil || parsed <= 0 {
@@ -47,7 +49,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	posts, err := storage.GetPosts(ctx, limit, offset)
+	posts, err := storage.GetPosts(ctx, limit, offset, search)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
