@@ -8,10 +8,25 @@ import (
 
 func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error) {
 
-	query := `SELECT id, user_id, title, content,  created_at, updated_at
-		FROM posts
-		ORDER BY created_at DESC, id DESC
-		LIMIT $1 OFFSET $2`
+	query := `SELECT 
+				posts.id,
+				posts.user_id, 
+				posts.title, 
+				posts.content,  
+				posts.created_at, 
+				posts.updated_at,
+
+				users.id,
+				users.name,
+				users.email
+
+			FROM posts
+			JOIN users 
+				ON posts.user_id=users.id
+		
+			ORDER BY posts.created_at DESC, posts.id DESC
+			LIMIT $1 OFFSET $2
+		`
 
 	rows, err := DB.QueryContext(ctx, query, limit, offset)
 
@@ -24,6 +39,7 @@ func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error)
 	posts := []models.Post{}
 	for rows.Next() {
 		var post models.Post
+		var author models.Author
 
 		err = rows.Scan(
 			&post.ID,
@@ -32,11 +48,17 @@ func GetPosts(ctx context.Context, limit int, offset int) ([]models.Post, error)
 			&post.Content,
 			&post.CreatedAt,
 			&post.UpdatedAt,
+
+			&author.ID,
+			&author.Name,
+			&author.Email,
 		)
 
 		if err != nil {
 			return nil, err
 		}
+
+		post.Author = &author
 
 		posts = append(posts, post)
 	}
@@ -132,7 +154,7 @@ func UpdatePost(ctx context.Context, id int, userID int, updatedPost models.Post
 	return post, nil
 }
 
-func DeletePost(ctx context.Context, id int,  userID int) error {
+func DeletePost(ctx context.Context, id int, userID int) error {
 
 	query := `
 		DELETE FROM posts 

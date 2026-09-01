@@ -9,6 +9,7 @@ type Post struct {
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Author    *Author   `json:"author"`
 }
 
 type Pagination struct {
@@ -20,4 +21,10 @@ type Pagination struct {
 type PostListResponse struct {
 	Data       []Post     `json:"data"`
 	Pagination Pagination `json:"pagination"`
+}
+
+type Author struct {
+	ID    int    `json:"ID"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
