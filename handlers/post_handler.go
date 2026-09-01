@@ -22,6 +22,21 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	value := r.URL.Query().Get("limit")
 	search := r.URL.Query().Get("search")
 
+	userID := 0
+
+	userIDValue := r.URL.Query().Get("user_id")
+
+	// filter By User ID
+	if userIDValue != "" {
+		parsed, err := strconv.Atoi(userIDValue)
+		if err != nil || parsed <= 0 {
+			http.Error(w, "Invalid user_id", http.StatusBadRequest)
+			return
+		}
+		userID = parsed
+	}
+
+	// limit 
 	if value != "" {
 		parsed, err := strconv.Atoi(value)
 		if err != nil || parsed <= 0 {
@@ -37,6 +52,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		limit = parsed
 	}
 
+	// offset 
 	if value := r.URL.Query().Get("offset"); value != "" {
 		parsed, err := strconv.Atoi(value)
 
@@ -49,7 +65,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	posts, err := storage.GetPosts(ctx, limit, offset, search)
+	posts, err := storage.GetPosts(ctx, limit, offset, search, userID)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
