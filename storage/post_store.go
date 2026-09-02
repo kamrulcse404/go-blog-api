@@ -45,7 +45,7 @@ func GetPosts(ctx context.Context, limit int, offset int, search string, userID 
 				OR posts.user_id = $2
 			)
 
-			ORDER %s
+			ORDER BY %s
 			LIMIT $3 OFFSET $4
 		`, orderBy)
 
