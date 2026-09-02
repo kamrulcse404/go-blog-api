@@ -19,6 +19,25 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 
 	limit := 10
 	offset := 0
+	sort := "newest"
+
+	// sorting 
+	sortValue := strings.ToLower(
+		strings.TrimSpace(r.URL.Query().Get("sort")),
+	)
+
+	if sortValue != "" {
+		if sortValue != "newest" && sortValue != "oldest" {
+			http.Error(
+				w,
+				"Invalid sort; allowed values are newest and oldest",
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		sort = sortValue
+	}
 
 	limitValue := r.URL.Query().Get("limit")
 	search := strings.TrimSpace(r.URL.Query().Get("search"))
@@ -37,7 +56,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		userID = parsed
 	}
 
-	// limit 
+	// limit
 	if limitValue != "" {
 		parsed, err := strconv.Atoi(limitValue)
 		if err != nil || parsed <= 0 {
@@ -53,7 +72,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		limit = parsed
 	}
 
-	// offset 
+	// offset
 	if value := r.URL.Query().Get("offset"); value != "" {
 		parsed, err := strconv.Atoi(value)
 
@@ -66,7 +85,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	posts, err := storage.GetPosts(ctx, limit, offset, search, userID)
+	posts, err := storage.GetPosts(ctx, limit, offset, search, userID,  sort,)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)

@@ -4,11 +4,22 @@ import (
 	"blogapi/models"
 	"context"
 	"database/sql"
+	"fmt"
 )
 
-func GetPosts(ctx context.Context, limit int, offset int, search string, userID int) ([]models.Post, error) {
+func GetPosts(ctx context.Context, limit int, offset int, search string, userID int, sort string) ([]models.Post, error) {
 
-	query := `SELECT 
+	orderBy := "posts.created_at DESC, posts.id DESC"
+
+	switch sort {
+	case "newest":
+		orderBy = "posts.created_at DESC, posts.id DESC"
+
+	case "oldest":
+		orderBy = "posts.created_at ASC, posts.id ASC"
+	}
+
+	query := fmt.Sprintf(`SELECT 
 				posts.id,
 				posts.user_id, 
 				posts.title, 
@@ -34,13 +45,13 @@ func GetPosts(ctx context.Context, limit int, offset int, search string, userID 
 				OR posts.user_id = $2
 			)
 
-			ORDER BY posts.created_at DESC, posts.id DESC
+			ORDER %s
 			LIMIT $3 OFFSET $4
-		`
+		`, orderBy)
 
 	searchPattern := "%" + search + "%"
 
-	rows, err := DB.QueryContext(ctx, query, searchPattern,  userID, limit, offset)
+	rows, err := DB.QueryContext(ctx, query, searchPattern, userID, limit, offset)
 
 	if err != nil {
 		return nil, err
@@ -192,7 +203,7 @@ func DeletePost(ctx context.Context, id int, userID int) error {
 	return nil
 }
 
-func CountPosts(ctx context.Context, search string, userID int,) (int, error) {
+func CountPosts(ctx context.Context, search string, userID int) (int, error) {
 	var total int
 
 	query := `
@@ -209,7 +220,7 @@ func CountPosts(ctx context.Context, search string, userID int,) (int, error) {
 	`
 	searchPattern := "%" + search + "%"
 
-	err := DB.QueryRowContext(ctx, query, searchPattern,  userID).Scan(&total)
+	err := DB.QueryRowContext(ctx, query, searchPattern, userID).Scan(&total)
 	if err != nil {
 		return 0, err
 	}
