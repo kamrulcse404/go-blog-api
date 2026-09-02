@@ -192,15 +192,24 @@ func DeletePost(ctx context.Context, id int, userID int) error {
 	return nil
 }
 
-func CountPosts(ctx context.Context) (int, error) {
+func CountPosts(ctx context.Context, search string, userID int,) (int, error) {
 	var total int
 
 	query := `
 		SELECT COUNT(*)
 		FROM posts
+		WHERE (
+            title ILIKE $1
+            OR content ILIKE $1
+        )
+		AND (
+			$2 = 0
+			OR user_id = $2
+		)
 	`
+	searchPattern := "%" + search + "%"
 
-	err := DB.QueryRowContext(ctx, query).Scan(&total)
+	err := DB.QueryRowContext(ctx, query, searchPattern,  userID).Scan(&total)
 	if err != nil {
 		return 0, err
 	}

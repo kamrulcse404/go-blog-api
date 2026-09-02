@@ -72,7 +72,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	total, err := storage.CountPosts(ctx)
+	total, err := storage.CountPosts(ctx, search, userID)
 	if err != nil {
 		http.Error(w, "Failed to count posts", http.StatusInternalServerError)
 		return
