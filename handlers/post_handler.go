@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -19,8 +20,8 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	limit := 10
 	offset := 0
 
-	value := r.URL.Query().Get("limit")
-	search := r.URL.Query().Get("search")
+	limitValue := r.URL.Query().Get("limit")
+	search := strings.TrimSpace(r.URL.Query().Get("search"))
 
 	userID := 0
 
@@ -37,8 +38,8 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// limit 
-	if value != "" {
-		parsed, err := strconv.Atoi(value)
+	if limitValue != "" {
+		parsed, err := strconv.Atoi(limitValue)
 		if err != nil || parsed <= 0 {
 			http.Error(w, "Invalid limit", http.StatusBadRequest)
 			return
