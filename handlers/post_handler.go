@@ -21,7 +21,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	offset := 0
 	sort := "newest"
 
-	// sorting 
+	// sorting
 	sortValue := strings.ToLower(
 		strings.TrimSpace(r.URL.Query().Get("sort")),
 	)
@@ -85,7 +85,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	posts, err := storage.GetPosts(ctx, limit, offset, search, userID,  sort,)
+	posts, err := storage.GetPosts(ctx, limit, offset, search, userID, sort)
 
 	if err != nil {
 		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
